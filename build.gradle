@@ -1,0 +1,63 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+}
+
+plugins {
+    id "java"
+    id "idea"
+    id "com.github.johnrengelman.shadow" version "2.0.2"
+    id "ninja.miserable.blossom" version "1.0.1"
+}
+
+def buildNumber = System.env.BUILD_NUMBER ?: "SNAPSHOT"
+
+def projectId = "joinkick"
+project.group = "sr.will"
+project.version = "1.0-" + buildNumber
+project.description = "Prevent the YOU ARE ALREADY CONNECTED TO THIS PROXY by kicking the old you"
+def projectUrl = "https://github.com/Willsr71/JoinKick"
+def projectAuthor = "Willsr71"
+def projectSite = "https://noxal.net"
+
+def jarName = "${projectId}-${project.version.toString()}.jar"
+
+repositories {
+    jcenter()
+
+    maven { url "https://repo.velocitypowered.com/snapshots/" }
+}
+
+dependencies {
+    compileOnly "com.velocitypowered:velocity-api:1.0-SNAPSHOT"
+}
+
+blossom {
+    def location = "src/main/java/sr/will/joinkick/PluginInfo.java"
+
+    replaceToken "@name@", project.name, location
+    replaceToken "@id@", projectId, location
+    replaceToken "@version@", project.version, location
+    replaceToken "@description@", project.description, location
+    replaceToken "@url@", projectUrl, location
+    replaceToken "@author@", projectAuthor, location
+    replaceToken "@website@", projectSite, location
+}
+
+jar {
+    archiveName jarName
+}
+
+shadowJar {
+    archiveName jarName
+}
+
+build {
+    dependsOn clean
+    dependsOn jar
+    dependsOn shadowJar
+
+    jar.mustRunAfter clean
+    shadowJar.mustRunAfter jar
+}
