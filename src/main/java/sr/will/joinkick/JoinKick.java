@@ -23,6 +23,7 @@ public class JoinKick {
     @Subscribe
     public void onPreLogin(PreLoginEvent event) {
         for (Player player : proxy.getAllPlayers()) {
+            // Checks if the user logging in is currently connected to the proxy
             if (player.getUsername().equals(event.getUsername())) {
                 // Put the server the player was connected to in the pendingconnections list so that we can reconnect them to that server
                 if (player.getCurrentServer().isPresent()) {
@@ -39,7 +40,7 @@ public class JoinKick {
     @Subscribe
     public void onServerPreConnect(ServerPreConnectEvent event) {
         // If the user is in the pending connections list, connect them to the server there instead of the default server
-        if (pendingConnections.keySet().contains(event.getPlayer().getUsername())) {
+        if (pendingConnections.containsKey(event.getPlayer().getUsername())) {
             event.setResult(ServerPreConnectEvent.ServerResult.allowed(pendingConnections.get(event.getPlayer().getUsername())));
             // Remove the player from the pending connections list
             pendingConnections.remove(event.getPlayer().getUsername());
